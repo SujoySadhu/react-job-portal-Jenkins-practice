@@ -18,7 +18,7 @@ const MyApplications = () => {
     try {
       if (user && user.role === "Employer") {
         axios
-          .get("${import.meta.env.VITE_API_URL}/application/employer/getall", {
+          .get(`${import.meta.env.VITE_API_URL}/application/employer/getall`, {
             withCredentials: true,
           })
           .then((res) => {
@@ -26,7 +26,7 @@ const MyApplications = () => {
           });
       } else {
         axios
-          .get("${import.meta.env.VITE_API_URL}/application/jobseeker/getall", {
+          .get(`${import.meta.env.VITE_API_URL}/application/jobseeker/getall`, {
             withCredentials: true,
           })
           .then((res) => {

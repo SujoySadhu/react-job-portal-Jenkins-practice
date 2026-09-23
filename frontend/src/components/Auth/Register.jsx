@@ -25,7 +25,7 @@ const Register = () => {
     setLoading(true);
     try {
       const { data } = await axios.post(
-        "${import.meta.env.VITE_API_URL}/user/register",
+        `${import.meta.env.VITE_API_URL}/user/register`,
         { name, phone, email, role, password },
         {
           headers: {

@@ -9,7 +9,7 @@ const Jobs = () => {
   useEffect(() => {
     try {
       axios
-        .get("${import.meta.env.VITE_API_URL}/job/getall", {
+        .get(`${import.meta.env.VITE_API_URL}/job/getall`, {
           withCredentials: true,
         })
         .then((res) => {

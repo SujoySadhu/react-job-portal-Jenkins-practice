@@ -17,7 +17,7 @@ const MyJobs = () => {
     const fetchJobs = async () => {
       try {
         const { data } = await axios.get(
-          "${import.meta.env.VITE_API_URL}/job/getmyjobs",
+          `${import.meta.env.VITE_API_URL}/job/getmyjobs`,
           { withCredentials: true }
         );
         setMyJobs(data.myJobs);
