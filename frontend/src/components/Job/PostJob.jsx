@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { Context } from "../../main";
 const PostJob = () => {
   const [title, setTitle] = useState("");
@@ -19,55 +19,30 @@ const PostJob = () => {
 
   const handleJobPost = async (e) => {
     e.preventDefault();
-    if (salaryType === "Fixed Salary") {
-      setSalaryFrom("");
-      setSalaryFrom("");
-    } else if (salaryType === "Ranged Salary") {
-      setFixedSalary("");
-    } else {
-      setSalaryFrom("");
-      setSalaryTo("");
-      setFixedSalary("");
+    if (salaryType === "default") {
+      toast.error("Please provide a Salary Type.");
+      return;
     }
+    const payload =
+      salaryType === "Fixed Salary"
+        ? { title, description, category, country, city, location, fixedSalary }
+        : { title, description, category, country, city, location, salaryFrom, salaryTo };
+
     await axios
-      .post(
-        `${import.meta.env.VITE_API_URL}/job/post`,
-        fixedSalary.length >= 4
-          ? {
-              title,
-              description,
-              category,
-              country,
-              city,
-              location,
-              fixedSalary,
-            }
-          : {
-              title,
-              description,
-              category,
-              country,
-              city,
-              location,
-              salaryFrom,
-              salaryTo,
-            },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+      .post(`${import.meta.env.VITE_API_URL}/job/post`, payload, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
       .then((res) => {
         toast.success(res.data.message);
       })
       .catch((err) => {
-        toast.error(err.response.data.message);
+        toast.error(err.response?.data?.message || "Failed to post job.");
       });
   };
 
-  const navigateTo = useNavigate();
   if (!isAuthorized || (user && user.role !== "Employer")) {
     return <Navigate to="/login" />;
   }

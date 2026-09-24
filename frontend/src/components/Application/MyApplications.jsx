@@ -1,8 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { Context } from "../../main";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import ResumeModal from "./ResumeModal";
 
 const MyApplications = () => {
@@ -12,51 +13,49 @@ const MyApplications = () => {
   const [resumeImageUrl, setResumeImageUrl] = useState("");
 
   const { isAuthorized } = useContext(Context);
-  const navigateTo = useNavigate();
 
   useEffect(() => {
-    try {
-      if (user && user.role === "Employer") {
-        axios
-          .get(`${import.meta.env.VITE_API_URL}/application/employer/getall`, {
-            withCredentials: true,
-          })
-          .then((res) => {
-            setApplications(res.data.applications);
-          });
-      } else {
-        axios
-          .get(`${import.meta.env.VITE_API_URL}/application/jobseeker/getall`, {
-            withCredentials: true,
-          })
-          .then((res) => {
-            setApplications(res.data.applications);
-          });
-      }
-    } catch (error) {
-      toast.error(error.response.data.message);
+    if (!isAuthorized) {
+      return;
     }
-  }, [isAuthorized]);
+    const endpoint =
+      user && user.role === "Employer"
+        ? "application/employer/getall"
+        : "application/jobseeker/getall";
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/${endpoint}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setApplications(res.data.applications);
+      })
+      .catch((error) => {
+        toast.error(
+          error.response?.data?.message || "Failed to load applications."
+        );
+      });
+  }, [isAuthorized, user]);
 
   if (!isAuthorized) {
     return <Navigate to="/login" />;
   }
 
   const deleteApplication = (id) => {
-    try {
-      axios
-        .delete(`${import.meta.env.VITE_API_URL}/application/delete/${id}`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          toast.success(res.data.message);
-          setApplications((prevApplication) =>
-            prevApplication.filter((application) => application._id !== id)
-          );
-        });
-    } catch (error) {
-      toast.error(error.response.data.message);
-    }
+    axios
+      .delete(`${import.meta.env.VITE_API_URL}/application/delete/${id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        toast.success(res.data.message);
+        setApplications((prevApplication) =>
+          prevApplication.filter((application) => application._id !== id)
+        );
+      })
+      .catch((error) => {
+        toast.error(
+          error.response?.data?.message || "Failed to delete application."
+        );
+      });
   };
 
   const openModal = (imageUrl) => {
@@ -165,6 +164,24 @@ const JobSeekerCard = ({ element, deleteApplication, openModal }) => {
   );
 };
 
+const applicationElementShape = PropTypes.shape({
+  _id: PropTypes.string,
+  name: PropTypes.string,
+  email: PropTypes.string,
+  phone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  address: PropTypes.string,
+  coverLetter: PropTypes.string,
+  resume: PropTypes.shape({
+    url: PropTypes.string,
+  }),
+});
+
+JobSeekerCard.propTypes = {
+  element: applicationElementShape.isRequired,
+  deleteApplication: PropTypes.func.isRequired,
+  openModal: PropTypes.func.isRequired,
+};
+
 const EmployerCard = ({ element, openModal }) => {
   return (
     <>
@@ -196,4 +213,9 @@ const EmployerCard = ({ element, openModal }) => {
       </div>
     </>
   );
+};
+
+EmployerCard.propTypes = {
+  element: applicationElementShape.isRequired,
+  openModal: PropTypes.func.isRequired,
 };

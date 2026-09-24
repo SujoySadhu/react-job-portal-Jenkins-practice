@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link, Navigate } from "react-router-dom";
@@ -36,7 +36,7 @@ const Login = () => {
       setRole("");
       setIsAuthorized(true);
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Login failed.");
     } finally {
       setLoading(false);
     }

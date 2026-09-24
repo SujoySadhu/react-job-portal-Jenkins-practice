@@ -1,80 +1,85 @@
 # Job Portal App with MERN Stack
 
-A comprehensive job portal application built using the MERN (MongoDB, Express.js, React.js, Node.js) stack. This application allows users to browse job listings, apply for jobs, and manage their applications seamlessly.
+A job portal built on the MERN stack (MongoDB, Express.js, React.js, Node.js). Employers post and manage job listings; job seekers browse jobs and submit applications with a resume upload.
+
+- **Backend docs:** [backend/README.md](backend/README.md) — architecture, env vars, scripts
+- **API reference:** [backend/API.md](backend/API.md) — every endpoint, request/response shapes, auth rules
+- **Frontend docs:** [frontend/README.md](frontend/README.md) — routes, state, components
 
 ## Features
 
-- **User Authentication:** Secure authentication using JWT (JSON Web Tokens) for both job seekers and employers.
-- **Job Listings:** Browse through a wide range of job listings fetched from MongoDB.
-- **Application Management:** Job seekers can manage their job applications, and employers can view and manage received applications.
-- **Responsive Design:** Ensures a seamless experience across all devices.
+- **Authentication:** JWT-based, stored as an httpOnly cookie; two roles, `Job Seeker` and `Employer`.
+- **Job listings:** Employers create/edit/delete their own jobs; anyone can browse open listings.
+- **Applications:** Job seekers apply with a resume (uploaded to Cloudinary); employers see applications received for their jobs, job seekers see and can withdraw their own.
+- **Authorization:** Role checks plus per-resource ownership checks (an employer can only edit/delete jobs they posted; a job seeker can only delete their own applications).
 
-## Technologies Used
+## Technologies used
 
-- **Frontend:** React.js, React Router, Bootstrap
-- **Backend:** Node.js, Express.js, MongoDB
-- **Authentication:** JWT (JSON Web Tokens), Bcrypt (for password hash)
-- **Image Upload:** Cloudinary for storing and managing uploaded images
-- **Deployment:** Vercel (frontend), Render(backend), MongoDB Atlas (database)
+- **Frontend:** React 18, React Router 7, Vite, Axios
+- **Backend:** Node.js, Express.js, Mongoose (MongoDB)
+- **Auth:** JSON Web Tokens (httpOnly cookie), bcrypt for password hashing
+- **File storage:** Cloudinary (resume uploads)
+
+## Architecture
+
+```
+┌────────────┐   HTTPS + cookie   ┌────────────┐        ┌────────────┐
+│  Frontend   │ ─────────────────▶ │  Backend    │ ─────▶ │  MongoDB    │
+│  (Vite/React)│ ◀───────────────── │  (Express)  │        │  Atlas      │
+└────────────┘     JSON API        └────────────┘        └────────────┘
+                                          │
+                                          ▼
+                                    ┌────────────┐
+                                    │  Cloudinary │  (resume files)
+                                    └────────────┘
+```
+
+The two apps are independent: the frontend is a static SPA that talks to the backend's REST API at `VITE_API_URL`; the backend is a standalone Express server that talks to MongoDB and Cloudinary. They're started, deployed, and versioned separately (see [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md)).
+
+## Repository layout
+
+```
+.
+├── backend/     # Express API — see backend/README.md and backend/API.md
+├── frontend/    # React SPA — see frontend/README.md
+└── README.md    # you are here
+```
 
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
-
 ### Prerequisites
 
-- Node.js installed on your machine with latest version or v22.2.0 above
-- MongoDB Atlas account (or local MongoDB server)
-- Cloudinary account for image storage
+- Node.js 18+ (project is tested with Node 22)
+- A MongoDB connection string (MongoDB Atlas or a local MongoDB server)
+- A Cloudinary account (for resume uploads)
 
 ### Installation
 
 1. Clone the repo:
    ```sh
    git clone https://github.com/exclusiveabhi/react-job-portal.git
-   ```
-2. Install NPM packages:
-
-   ```sh
    cd react-job-portal
-   cd backend
-   npm install
-   cd..
-   cd frontend
-   npm install
    ```
-
-3. ## If you don't want to change the`.env` credentials skip step 4 and move to step 5.
-
-4. Set up environment variables:
-
-   - Create a `config.env` file after creating a `config folder` in the backend directory, containing the following variables:
-
-   ```env
-   PORT=
-   CLOUDINARY_API_KEY=
-   CLOUDINARY_API_SECRET=
-   CLOUDINARY_CLOUD_NAME=
-   FRONTEND_URL=
-   DB_URL=
-   JWT_SECRET_KEY=
-   JWT_EXPIRE=
-   COOKIE_EXPIRE=
-   ```
-
-   Replace each value with your specific configuration details.
-
-5. Run the application backend (make sure you are in `/backend` directory) :
-
+2. Install dependencies for both apps:
    ```sh
-   node server.js
+   cd backend && npm install
+   cd ../frontend && npm install
    ```
-
-6. Run the application frontend (make sure you are in `/frontend` directory) :
+3. Configure environment variables — copy each app's `.env.example` to `.env` and fill in real values:
+   ```sh
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   ```
+   See [backend/README.md](backend/README.md#environment-variables) for what each backend variable does. `.env` files are git-ignored — never commit real credentials, and if any ever leak into git history, rotate them immediately rather than just deleting the file.
+4. Run the backend (from `backend/`):
    ```sh
    npm run dev
    ```
-7. Open your browser and navigate to `http://localhost:5173` to view the app.
+5. In a second terminal, run the frontend (from `frontend/`):
+   ```sh
+   npm run dev
+   ```
+6. Open `http://localhost:5173`. The backend's `FRONTEND_URL` and the frontend's `VITE_API_URL` must point at each other, or requests will be rejected by CORS.
 
 ## Contributing
 
@@ -84,9 +89,7 @@ Contributions are what make the open-source community such an amazing place to l
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request (`we will merge within 24 hour`)
-
-## Please give a star ⭐ to the repository if you like it.
+5. Open a Pull Request
 
 ## Contact
 

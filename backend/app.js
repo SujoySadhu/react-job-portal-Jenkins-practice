@@ -9,13 +9,17 @@ import { errorMiddleware } from "./middlewares/error.js";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
 
+import os from "os";
+import path from "path";
+
+config({ path: path.resolve(process.cwd(), ".env") });
+
 const app = express();
-config({ path: "./config/config.env" });
 
 app.use(
   cors({
     origin: [process.env.FRONTEND_URL],
-    method: ["GET", "POST", "DELETE", "PUT"],
+    methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
 );
@@ -27,7 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   fileUpload({
     useTempFiles: true,
-    tempFileDir: "/tmp/",
+    tempFileDir: path.join(os.tmpdir(), "job-portal-uploads"),
   })
 );
 app.use("/api/v1/user", userRouter);

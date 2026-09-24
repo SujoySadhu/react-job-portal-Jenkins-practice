@@ -6,11 +6,11 @@ import { sendToken } from "../utils/jwtToken.js";
 export const register = catchAsyncErrors(async (req, res, next) => {
   const { name, email, phone, password, role } = req.body;
   if (!name || !email || !phone || !password || !role) {
-    return next(new ErrorHandler("Please fill full form !"));
+    return next(new ErrorHandler("Please fill full form !", 400));
   }
   const isEmail = await User.findOne({ email });
   if (isEmail) {
-    return next(new ErrorHandler("Email already registered !"));
+    return next(new ErrorHandler("Email already registered !", 400));
   }
   const user = await User.create({
     name,
@@ -25,7 +25,9 @@ export const register = catchAsyncErrors(async (req, res, next) => {
 export const login = catchAsyncErrors(async (req, res, next) => {
   const { email, password, role } = req.body;
   if (!email || !password || !role) {
-    return next(new ErrorHandler("Please provide email ,password and role !"));
+    return next(
+      new ErrorHandler("Please provide email ,password and role !", 400)
+    );
   }
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
@@ -40,12 +42,12 @@ export const login = catchAsyncErrors(async (req, res, next) => {
       new ErrorHandler(`User with provided email and ${role} not found !`, 404)
     );
   }
-  sendToken(user, 201, res, "User Logged In Sucessfully !");
+  sendToken(user, 200, res, "User Logged In Sucessfully !");
 });
 
 export const logout = catchAsyncErrors(async (req, res, next) => {
   res
-    .status(201)
+    .status(200)
     .cookie("token", "", {
       httpOnly: true,
       expires: new Date(0),

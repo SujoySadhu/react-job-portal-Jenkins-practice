@@ -1,23 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Link, Navigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { Context } from "../../main";
 
 const Jobs = () => {
   const [jobs, setJobs] = useState([]);
   const { isAuthorized } = useContext(Context);
   useEffect(() => {
-    try {
-      axios
-        .get(`${import.meta.env.VITE_API_URL}/job/getall`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setJobs(res.data);
-        });
-    } catch (error) {
-      console.log(error);
-    }
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/job/getall`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setJobs(res.data);
+      })
+      .catch((error) => {
+        toast.error(error.response?.data?.message || "Failed to load jobs.");
+      });
   }, []);
   if (!isAuthorized) {
     return <Navigate to="/login" />;

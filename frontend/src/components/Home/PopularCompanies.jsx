@@ -1,4 +1,4 @@
-import React from "react";
+
 import { FaMicrosoft, FaApple } from "react-icons/fa";
 import { SiTesla } from "react-icons/si";
 
